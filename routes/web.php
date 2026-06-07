@@ -3,6 +3,9 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
+Route::middleware('auth')->group(function () {
+    Route::patch('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar');
+});
 
 Route::post('/forgot-password', [PasswordResetLinkController::class, 'store']);
 Route::get('/', function () {

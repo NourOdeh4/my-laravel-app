@@ -57,4 +57,22 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
+
+
+   public function updateAvatar(Request $request)
+{
+    // 1. التحقق من أن الملف صورة فعلاً
+    $request->validate([
+        'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
+
+    // 2. رفع الملف وتخزينه في مجلد avatars داخل public
+    $path = $request->file('avatar')->store('avatars', 'public');
+
+    // 3. تحديث قاعدة البيانات بمسار الصورة
+    auth()->user()->update(['avatar' => $path]);
+
+    // 4. العودة للصفحة مع رسالة نجاح
+    return back()->with('status', 'profile-avatar-updated');
+}
 }
