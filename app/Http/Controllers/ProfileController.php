@@ -9,8 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
-class ProfileController extends Controller
-{
+class ProfileController extends Controller{
     /**
      * Display the user's profile form.
      */
@@ -58,21 +57,29 @@ class ProfileController extends Controller
         return Redirect::to('/');
     }
 
-
-   public function updateAvatar(Request $request)
+public function updateAvatar(Request $request)
 {
-    // 1. التحقق من أن الملف صورة فعلاً
+
+// أضيفي هذا السطر:
+    \Log::info($request->all());
+    \Log::info($request->hasFile('avatar') ? 'File Found' : 'File NOT Found');
+    // 1. التحقق
     $request->validate([
-        'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
     ]);
 
-    // 2. رفع الملف وتخزينه في مجلد avatars داخل public
-    $path = $request->file('avatar')->store('avatars', 'public');
+    // 2. رفع الملف
+    $path = $request->file('image')->store('avatars', 'public');
 
-    // 3. تحديث قاعدة البيانات بمسار الصورة
-    auth()->user()->update(['avatar' => $path]);
+    // 3. تحديث المستخدم
+    $user = auth()->user();
+    $user->update(['avatar' => $path]);
 
-    // 4. العودة للصفحة مع رسالة نجاح
-    return back()->with('status', 'profile-avatar-updated');
+    // 4. الرد بصيغة JSON للفريق (بدل back)
+    return response()->json([
+        'message' => 'Profile avatar updated successfully',
+        'path' => asset('storage/' . $path) // هذا الرابط الذي سيستخدمه الفرونت إند لعرض الصورة
+    ], 200);
 }
+
 }

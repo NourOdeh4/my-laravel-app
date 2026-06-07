@@ -21,8 +21,15 @@ return Application::configure(basePath: dirname(__DIR__))
             'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
         ]);
 
-        //
+        // --- أضيفي هذا الجزء هنا ---
+        $middleware->validateCsrfTokens(except: [
+            'forgot-password',
+            'login',
+            'profile/avatar',
+        ]);
+        // ---------------------------
     })
+    
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),
