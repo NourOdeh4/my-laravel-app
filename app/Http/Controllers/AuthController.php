@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\VerificationCodeMail;
+use Illuminate\Support\Facades\Password;
 
 class AuthController extends Controller
 {
@@ -40,61 +41,54 @@ public function completeProfile(Request $request)
         'name' => 'required|string',
         'last_name' => 'required|string',
         'address' => 'required|string',
+        'phone' => 'required|string|max:15', 
     ]);
 
     $user = User::find($request->user_id);
     $code = rand(100000, 999999);
 
+    // --- هنا التعديل: أضفنا سطر الـ phone ---
     $user->update([
         'name' => $request->name,
         'last_name' => $request->last_name,
         'address' => $request->address,
+        'phone' => $request->phone, // هذا هو السطر الناقص!
         'verification_code' => $code,
     ]);
 
-    // --- أضف هذا السطر هنا لإرسال الإيميل ---
     Mail::to($user->email)->send(new VerificationCodeMail($code));
-    // ----------------------------------------
 
     return response()->json([
         'message' => 'تم حفظ البيانات وتوليد الكود بنجاح وإرساله للإيميل',
         'code' => $code
     ], 200);
 }
-
 public function verifyAccount(Request $request)
 {
+    // 1. التحقق من البيانات
     $request->validate([
         'user_id' => 'required|exists:users,id',
-        'code' => 'required|numeric',
+        'code' => 'required',
     ]);
 
-    // نستخدم findOrFail لنعرف إذا كان النظام يجد المستخدم فعلاً
-    $user = User::find($request->user_id);
+    // 2. البحث عن المستخدم
+    $user = \App\Models\User::find($request->user_id);
 
-    // للتأكد من الكود (استخدم == بدلاً من != في حال كان هناك اختلاف بسيط في النوع)
-    if ((int)$user->verification_code !== (int)$request->code) {
-        return response()->json([
-            'message' => 'الكود غير صحيح.',
-            'db_code' => $user->verification_code, // لنرى ماذا يوجد في قاعدة البيانات
-            'sent_code' => $request->code
-        ], 400);
-    }
+    // 3. التحقق من صحة الكود وتاريخ انتهائه
+    if ($user->verification_code == $request->code) {
+        
+        // التحقق من أن الكود لم ينتهِ (اختياري، تأكدي من توافقه مع كودك)
+        
+        // 4. التعديل الصحيح (هنا يكمن سر الحل)
+        $user->is_active = 1;
+        $user->verification_code = null; // مسح الكود بعد الاستخدام
+        $user->save(); // حفظ التغييرات في قاعدة البيانات
 
-    // هنا نقوم بالتحديث المباشر
-    $updateResult = $user->update([
-        'is_active' => 1, // جرب وضع رقم 1 بدلاً من true
-        'verification_code' => null,
-    ]);
-
-    // نتحقق إذا تم التحديث فعلياً
-    if ($updateResult) {
         return response()->json(['message' => 'تم تفعيل الحساب بنجاح!'], 200);
-    } else {
-        return response()->json(['message' => 'فشل التحديث في قاعدة البيانات'], 500);
     }
-}
 
+    return response()->json(['message' => 'الكود غير صحيح'], 400);
+}
 
 public function login(Request $request)
 {
@@ -133,17 +127,37 @@ public function login(Request $request)
     ], 200);
 }
 
-public function store(Request $request)
-{
-    $request->validate([
-        'email' => ['required', 'email'],
-    ]);
 
+public function forgotPassword(Request $request)
+{
+    $request->validate(['email' => 'required|email']);
+
+    // إرسال رابط إعادة التعيين
     $status = Password::sendResetLink($request->only('email'));
 
-    return $status == Password::RESET_LINK_SENT
-        ? response()->json(['message' => __($status)], 200)
-        : response()->json(['message' => __($status)], 400);
+    return $status === Password::RESET_LINK_SENT
+        ? response()->json(['message' => 'تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك'], 200)
+        : response()->json(['message' => 'فشل في إرسال الرابط'], 400);
+}
+public function resetPassword(Request $request)
+{
+    $request->validate([
+        'token' => 'required',
+        'email' => 'required|email',
+        'password' => 'required|confirmed',
+    ]);
+
+    $status = Password::reset(
+        $request->only('email', 'password', 'password_confirmation', 'token'),
+        function ($user, $password) {
+            $user->password = Hash::make($password);
+            $user->save();
+        }
+    );
+
+    return $status === Password::PASSWORD_RESET
+        ? response()->json(['message' => 'تم تغيير كلمة المرور بنجاح'], 200)
+        : response()->json(['message' => 'فشل تغيير كلمة المرور، التوكن غير صالح'], 400);
 }
 
 public function logout(Request $request)
