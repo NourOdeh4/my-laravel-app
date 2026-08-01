@@ -9,8 +9,12 @@ class SolarRequest extends Model
    protected $fillable = [
     'user_id',
     'solar_package_id',
+<<<<<<< HEAD
     'status',
     'installation_request_id'
+=======
+    'status'
+>>>>>>> 1f07254a9c81854a5a6b734cb8f37e452278f2e7
 ];
 
 public function solarPackage()

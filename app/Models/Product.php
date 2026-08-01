@@ -12,8 +12,12 @@ class Product extends Model
     'price',
     'stock',
     'image',
+<<<<<<< HEAD
     'device_id',
     'category_id'
+=======
+    'device_id'
+>>>>>>> 1f07254a9c81854a5a6b734cb8f37e452278f2e7
 ];
 public function category()
 {

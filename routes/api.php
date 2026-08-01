@@ -134,7 +134,10 @@ Route::prefix('store')->group(function () {
 });
 
 Route::prefix('store')->group(function () {
+<<<<<<< HEAD
     Route::get('/products', [ProductController::class, 'index']);
+=======
+>>>>>>> 1f07254a9c81854a5a6b734cb8f37e452278f2e7
 
     Route::get('/products/search', [ProductController::class, 'search']);
     Route::get('/products/{id}', [ProductController::class, 'show']);

@@ -19,7 +19,10 @@ class DatabaseSeeder extends Seeder
 ])
 ;
 $this->call(GeneratorSeeder::class);
+<<<<<<< HEAD
 $this->call(ProductSeeder::class);
+=======
+>>>>>>> 1f07254a9c81854a5a6b734cb8f37e452278f2e7
         // User::factory(10)->create();
 
         User::factory()->create([

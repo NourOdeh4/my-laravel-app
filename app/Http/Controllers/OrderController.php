@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\CartItem;
+<<<<<<< HEAD
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -45,6 +46,20 @@ class OrderController extends Controller
     DB::beginTransaction();
 
     try {
+=======
+use Illuminate\Http\Request;
+
+class OrderController extends Controller
+{
+    // إنشاء طلب جديد
+    public function createOrder()
+    {
+        $cartItems = CartItem::where('user_id', auth()->id())->get();
+
+        if ($cartItems->count() == 0) {
+            return response()->json(['message' => 'السلة فارغة'], 400);
+        }
+>>>>>>> 1f07254a9c81854a5a6b734cb8f37e452278f2e7
 
         $total = 0;
 
@@ -52,6 +67,7 @@ class OrderController extends Controller
             $total += $item->product->price * $item->quantity;
         }
 
+<<<<<<< HEAD
 
         $order = Order::create([
             'user_id' => $user->id,
@@ -64,12 +80,22 @@ class OrderController extends Controller
 
         foreach ($cartItems as $item) {
 
+=======
+        $order = Order::create([
+            'user_id' => auth()->id(),
+            'total_price' => $total,
+            'status' => 'pending'
+        ]);
+
+        foreach ($cartItems as $item) {
+>>>>>>> 1f07254a9c81854a5a6b734cb8f37e452278f2e7
             OrderItem::create([
                 'order_id' => $order->id,
                 'product_id' => $item->product_id,
                 'quantity' => $item->quantity,
                 'price' => $item->product->price
             ]);
+<<<<<<< HEAD
 
 
             // إخفاء المنتج من السلة بانتظار الموافقة
@@ -80,11 +106,18 @@ class OrderController extends Controller
 
         DB::commit();
 
+=======
+        }
+
+        // تفريغ السلة بعد الطلب
+        CartItem::where('user_id', auth()->id())->delete();
+>>>>>>> 1f07254a9c81854a5a6b734cb8f37e452278f2e7
 
         return response()->json([
             'message' => 'تم إنشاء الطلب بنجاح',
             'order_id' => $order->id
         ]);
+<<<<<<< HEAD
 
 
     } catch (\Exception $e) {
@@ -96,6 +129,10 @@ class OrderController extends Controller
         ], 500);
     }
 }
+=======
+    }
+
+>>>>>>> 1f07254a9c81854a5a6b734cb8f37e452278f2e7
     // عرض طلبات المستخدم
     public function getOrders()
     {
@@ -119,6 +156,7 @@ class OrderController extends Controller
 }
 
     // حذف طلب
+<<<<<<< HEAD
    public function deleteOrder($id)
 {
     $user = Auth::user();
@@ -173,4 +211,14 @@ class OrderController extends Controller
     }
 }
 }
+=======
+    public function deleteOrder($id)
+    {
+        $order = Order::where('user_id', auth()->id())->findOrFail($id);
+        $order->delete();
+
+        return response()->json(['message' => 'تم حذف الطلب']);
+    }
+}
+>>>>>>> 1f07254a9c81854a5a6b734cb8f37e452278f2e7
 

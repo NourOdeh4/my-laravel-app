@@ -211,10 +211,18 @@ public function storeBatteryRequest(Request $request)
         ], 404);
     }
 
+<<<<<<< HEAD
     // حفظ الصورة
     $imagePath = $request->file('image')->store('maintenance/batteries', 'public');
 
     // إنشاء الطلب
+=======
+
+    $imagePath = $request->file('image')
+        ->store('maintenance/batteries', 'public');
+
+
+>>>>>>> 1f07254a9c81854a5a6b734cb8f37e452278f2e7
     $maintenanceRequest = MaintenanceRequest::create([
         'user_id' => $user->id,
         'service_id' => $service->id,
@@ -226,16 +234,28 @@ public function storeBatteryRequest(Request $request)
         'status' => 'pending',
     ]);
 
+<<<<<<< HEAD
     // تحويل مسار الصورة إلى رابط يمكن فتحه
     $maintenanceRequest->image = asset('storage/' . $maintenanceRequest->image);
+=======
+>>>>>>> 1f07254a9c81854a5a6b734cb8f37e452278f2e7
 
     return response()->json([
         'message' => 'Battery maintenance request created successfully',
         'request' => $maintenanceRequest,
         'request_id' => $maintenanceRequest->id,
+<<<<<<< HEAD
         'status' => $maintenanceRequest->status
     ], 201);
 }
+=======
+    'status' => $maintenanceRequest->status
+    ], 201);
+}
+
+
+
+>>>>>>> 1f07254a9c81854a5a6b734cb8f37e452278f2e7
 public function showMyBatteryRequest($id)
 {
     $user = Auth::user();

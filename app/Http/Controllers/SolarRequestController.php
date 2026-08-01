@@ -53,6 +53,7 @@ public function store(Request $request)
     DB::beginTransaction();
 
     try {
+<<<<<<< HEAD
 // إنشاء طلب تركيب الطاقة الشمسية
 $solarRequest = SolarRequest::create([
     'user_id' => $user->id,
@@ -63,6 +64,15 @@ $solarRequest = SolarRequest::create([
     'solar_package_id' => $request->solar_package_id,
     'status' => 'pending'
 ]);
+=======
+
+        // إنشاء طلب تركيب الطاقة الشمسية
+        $solarRequest = SolarRequest::create([
+            'user_id' => $user->id,
+            'solar_package_id' => $request->solar_package_id,
+            'status' => 'pending'
+        ]);
+>>>>>>> 1f07254a9c81854a5a6b734cb8f37e452278f2e7
 
         // ربط الأجهزة بالطلب
         foreach ($selectedDevices as $device) {

@@ -136,17 +136,25 @@ public function deleteUserInstallationRequest($id)
 
     try {
 
+<<<<<<< HEAD
         // حذف الأجهزة المرتبطة بالطلب
+=======
+        // حذف الأجهزة المرتبطة بهذا الطلب فقط
+>>>>>>> 1f07254a9c81854a5a6b734cb8f37e452278f2e7
         DB::table('device_user')
             ->where('installation_request_id', $id)
             ->delete();
 
+<<<<<<< HEAD
         // حذف الطلب النهائي إذا كان موجوداً
         DB::table('solar_requests')
             ->where('installation_request_id', $id)
             ->delete();
 
         // حذف طلب التركيب
+=======
+        // حذف طلب التركيب نفسه
+>>>>>>> 1f07254a9c81854a5a6b734cb8f37e452278f2e7
         DB::table('solar_installation_requests')
             ->where('id', $id)
             ->delete();
